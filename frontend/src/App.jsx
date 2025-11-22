@@ -1,52 +1,38 @@
+import { useEffect, useState } from "react";
 import "./App.css";
+import Block from "./components/Block";
+import Form from "./components/Form";
+
+const API_URL = "http://localhost:4444";
 
 function App() {
+    const [messages, setMessages] = useState([]);
+
+    const fetchMessages = async () => {
+        const response = await fetch(`${API_URL}/messages`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        const data = await response.json();
+        setMessages(data);
+    };
+
+    useEffect(() => {
+        fetchMessages();
+    }, []);
+
     return (
         <>
             <div className="LLM-UI">
                 <div className="Messages">
-                    <div class="Block Block--User">
-                        <div class="Message Message--User">
-                            <span class="Text">
-                                Explain me the reason of error caught in my
-                                application: FinalizationRegistry is not defined
-                                (-1)^7 Explain me the reason of error caught in
-                                my application: FinalizationRegistry is not
-                                defined (-1)^7
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="Block Block--LLM">
-                        <div className="Message Message--LLM">
-                            <span className="Text">
-                                Привет! 🌟 Рад тебя видеть! Чем могу помочь
-                                сегодня? Если у тебя есть вопросы, идеи или
-                                просто хочется поговорить — я здесь, чтобы
-                                помочь. Давай начнём! 😊
-                            </span>
-                        </div>
-                    </div>
+                    {messages.map((message) => (
+                        <Block message={message} key={message.id}></Block>
+                    ))}
                 </div>
 
-                <div className="Form-Wrapper">
-                    <form>
-                        <textarea
-                            className="Ask-anything"
-                            placeholder="Ask anything..."
-                        ></textarea>
-                        <footer>
-                            <button className="button--attach">
-                                <span className="Send Send--attach">
-                                    Attach
-                                </span>
-                            </button>
-                            <button className="button--send">
-                                <span className="Send">Send</span>
-                            </button>
-                        </footer>
-                    </form>
-                </div>
+                <Form setMessages={setMessages}></Form>
             </div>
         </>
     );

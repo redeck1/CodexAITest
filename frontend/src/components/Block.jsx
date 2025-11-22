@@ -6,7 +6,7 @@ function Block({ message }) {
     return (
         <div className={`Block Block--${style}`}>
             <div className={`Message Message--${style}`}>
-                <span className="Text">{message.text}</span>
+                <span className={`Text Text--${style}`}>{message.text}</span>
             </div>
         </div>
     );

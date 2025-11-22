@@ -2,3 +2,7 @@
     background-color: #000000;
     --container-max-width: 800px;
 }
+
+body {
+    margin: 0;
+}

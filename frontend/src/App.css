@@ -38,7 +38,8 @@ form {
     justify-content: flex-start;
     align-items: stretch;
     gap: 30px;
-    margin: 0 auto 40px;
+    margin: 0;
+    margin-bottom: 40px;
     padding: 0;
     padding-top: 40px;
 }
@@ -182,4 +183,33 @@ img.Icon-Send {
     height: 16px;
     flex-grow: 0;
     object-fit: contain;
+}
+
+pre {
+    background: #1a1a1a;
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 16px 0;
+    border-radius: 16px;
+    border: solid 1px #191919;
+}
+
+code {
+    background: #0e0e0e;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: "Courier New", monospace;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.5;
+    letter-spacing: normal;
+    text-align: left;
+    color: #777;
+}
+
+pre code {
+    background: none;
+    padding: 0;
 }

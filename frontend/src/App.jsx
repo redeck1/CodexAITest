@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import "highlight.js/styles/github-dark.css";
 import "./App.css";
 import Block from "./components/Block";
 import Form from "./components/Form";

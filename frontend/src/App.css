@@ -306,3 +306,25 @@ code {
     font-family: "Courier New", monospace;
     color: #777;
 }
+
+.Thinking {
+    background: linear-gradient(90deg, #444444 0%, #ffffff 50%, #444444 100%);
+    background-size: 200% auto;
+
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    animation: shimmer 2.5s linear infinite;
+    font-weight: 500;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% center;
+    }
+    100% {
+        background-position: 200% center;
+    }
+}

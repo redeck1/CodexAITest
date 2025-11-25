@@ -9,24 +9,45 @@ import attachIcon3x from "../img/icon-attach@3x.png";
 
 const API_URL = "http://localhost:4444";
 
-function Form({ setMessages }) {
+function Form({ setMessages, setIsThinking }) {
     const [question, setQuestion] = useState("");
 
     const sendHandler = async (event) => {
         event.preventDefault();
-        setQuestion("");
-        const response = await fetch(`${API_URL}/generate`, {
-            method: "POST",
-            headers: {
-                "Content-type": "application/json",
-            },
-            body: JSON.stringify({
-                prompt: question,
-            }),
-        });
 
-        const data = await response.json();
-        setMessages((prev) => [...prev, ...data]);
+        const tempID = Date.now();
+        const tempUserMessage = {
+            id: tempID,
+            text: question,
+            from: "user",
+        };
+
+        setMessages((prev) => [...prev, tempUserMessage]);
+        setQuestion("");
+
+        try {
+            setIsThinking(true);
+            const response = await fetch(`${API_URL}/generate`, {
+                method: "POST",
+                headers: {
+                    "Content-type": "application/json",
+                },
+                body: JSON.stringify({
+                    prompt: question,
+                }),
+            });
+
+            const data = await response.json();
+            setMessages((prev) => {
+                const otherMessages = prev.filter((msg) => msg.id !== tempID);
+                return [...otherMessages, ...data];
+            });
+        } catch (error) {
+            setMessages((prev) => prev.filter((msg) => msg.id !== tempID));
+            alert("Не удалось отправить сообщение");
+        } finally {
+            setIsThinking(false);
+        }
     };
 
     const attachHandler = (event) => {

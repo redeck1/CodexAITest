@@ -184,6 +184,18 @@ button {
 .button--attach:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
+
+button:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.button--send:disabled {
+    background-color: #cccccc;
+
+    color: #666666;
+}
+
 img.Icon-Send {
     width: 16px;
     height: 16px;
@@ -198,7 +210,7 @@ img.Icon-Send {
     padding: 0;
     border-radius: 16px;
     border: solid 1px #191919;
-    background: #1a1a1a;
+    background: #0e0e0e;
     overflow: hidden;
 }
 
@@ -227,7 +239,7 @@ code.hljs {
 
 .hljs {
     color: #777 !important;
-    background-color: #1a1a1a !important;
+    background-color: #0e0e0e !important;
 }
 
 .Copy-Button {
@@ -252,4 +264,12 @@ img.copy {
     height: 20px;
     flex-grow: 0;
     object-fit: contain;
+}
+
+code {
+    background: #0e0e0e;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: "Courier New", monospace;
+    color: #777;
 }

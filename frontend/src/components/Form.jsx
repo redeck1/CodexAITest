@@ -33,6 +33,21 @@ function Form({ setMessages }) {
         event.preventDefault();
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            if (question.trim()) {
+                sendHandler(e);
+            }
+        }
+    };
+
+    const handleInput = (e) => {
+        const textarea = e.target;
+        textarea.style.height = "auto";
+        textarea.style.height = textarea.scrollHeight + "px";
+    };
+
     return (
         <div className="Form-Wrapper">
             <form>
@@ -41,6 +56,8 @@ function Form({ setMessages }) {
                     placeholder="Ask anything..."
                     value={question}
                     onChange={(e) => setQuestion(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    onInput={handleInput}
                 ></textarea>
                 <footer>
                     <button
@@ -57,6 +74,7 @@ function Form({ setMessages }) {
                     <button
                         className="button--send"
                         onClick={(e) => sendHandler(e)}
+                        disabled={!question.trim()}
                     >
                         <img
                             src={sendIcon}

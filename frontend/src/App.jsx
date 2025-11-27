@@ -4,8 +4,7 @@ import "./App.css";
 import Block from "./components/Block";
 import Form from "./components/Form";
 import Thinking from "./components/Thinking";
-
-const API_URL = "http://localhost:4444";
+import { chatService } from "./api/chatService";
 
 function App() {
     const [messages, setMessages] = useState([]);
@@ -17,13 +16,7 @@ function App() {
     };
 
     const fetchMessages = async () => {
-        const response = await fetch(`${API_URL}/messages`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-        const data = await response.json();
+        const data = await chatService.getHistory();
         setMessages(data);
     };
 

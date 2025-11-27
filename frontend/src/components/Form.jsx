@@ -6,8 +6,7 @@ import sendIcon2x from "../img/icon-send@2x.png";
 import sendIcon3x from "../img/icon-send@3x.png";
 import attachIcon2x from "../img/icon-attach@2x.png";
 import attachIcon3x from "../img/icon-attach@3x.png";
-
-const API_URL = "http://localhost:4444";
+import { chatService } from "../api/chatService";
 
 function Form({ setMessages, setIsThinking }) {
     const [question, setQuestion] = useState("");
@@ -27,17 +26,7 @@ function Form({ setMessages, setIsThinking }) {
 
         try {
             setIsThinking(true);
-            const response = await fetch(`${API_URL}/generate`, {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json",
-                },
-                body: JSON.stringify({
-                    prompt: question,
-                }),
-            });
-
-            const data = await response.json();
+            const data = await chatService.generateResponse(question);
             setMessages((prev) => {
                 const otherMessages = prev.filter((msg) => msg.id !== tempID);
                 return [...otherMessages, ...data];

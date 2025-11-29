@@ -4,14 +4,20 @@ import rehypeHighlight from "rehype-highlight";
 import Pre from "./Pre";
 import "highlight.js/styles/github-dark.css";
 
-function Block({ message }) {
+function Block({ message, isThinking }) {
     const style = message.from === "user" ? "User" : "LLM";
 
     return (
         <div className={`Block Block--${style}`}>
             {style === "LLM" && (
                 <details className="Thoughts">
-                    <summary>Thoughts</summary>
+                    <summary>
+                        {isThinking ? (
+                            <span className="Thinking">Thinking...</span>
+                        ) : (
+                            <span>Thoughts</span>
+                        )}
+                    </summary>
                     <span>{message.metadata.reasoning}</span>
                 </details>
             )}

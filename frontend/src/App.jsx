@@ -3,7 +3,6 @@ import "highlight.js/styles/github-dark.css";
 import "./App.css";
 import Block from "./components/Block";
 import Form from "./components/Form";
-import Thinking from "./components/Thinking";
 import { chatService } from "./api/chatService";
 
 function App() {
@@ -33,9 +32,12 @@ function App() {
             <div className="LLM-UI">
                 <div className="Messages">
                     {messages.map((message) => (
-                        <Block message={message} key={message.id}></Block>
+                        <Block
+                            message={message}
+                            isThinking={isThinking}
+                            key={message.id}
+                        ></Block>
                     ))}
-                    {isThinking && <Thinking></Thinking>}
                     <div
                         ref={messagesEndRef}
                         style={{ height: 1, opacity: 0 }}

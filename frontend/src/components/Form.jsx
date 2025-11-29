@@ -7,7 +7,6 @@ import sendIcon3x from "../img/icon-send@3x.png";
 import attachIcon2x from "../img/icon-attach@2x.png";
 import attachIcon3x from "../img/icon-attach@3x.png";
 import { chatService } from "../api/chatService";
-import { messages } from "../../../backend/db/memoryDb";
 
 function Form({ setMessages, setIsThinking }) {
     const [question, setQuestion] = useState("");
@@ -25,83 +24,75 @@ function Form({ setMessages, setIsThinking }) {
         setMessages((prev) => [...prev, tempUserMessage]);
         setQuestion("");
 
-        try {
-            await chatService.generateStreamResponse(question, (event) => {
-                switch (event.type) {
-                    // === Пользователь ===
-                    case "message": // от пользователя
-                        setMessages((prev) => {
-                            const newUserMsg = {
+        const onData = (event) => {
+            switch (event.type) {
+                case "message": // от пользователя
+                    setMessages((prev) => {
+                        const otherMessages = prev.filter(
+                            (msg) => msg.id !== tempID
+                        );
+                        const newUserMsg = {
+                            id: event.id,
+                            text: event.text,
+                            from: event.from,
+                        };
+                        return [...otherMessages, newUserMsg];
+                    });
+                    break;
+                case "start":
+                    setMessages((prev) => {
+                        if (prev.some((msg) => msg.id === event.id))
+                            return prev;
+
+                        return [
+                            ...prev,
+                            {
                                 id: event.id,
-                                text: event.text, // или event.text — смотря что приходит
                                 from: event.from,
-                            };
-                            return [...prev, newUserMsg];
-                        });
-                        break;
+                                text: "",
+                                metadata: { reasoning: "" },
+                            },
+                        ];
+                    });
+                    break;
+                case "text-delta":
+                    setMessages((prev) =>
+                        prev.map((msg) =>
+                            msg.id === event.id
+                                ? { ...msg, text: msg.text + event.text }
+                                : msg
+                        )
+                    );
+                    break;
+                case "reasoning-start":
+                    setIsThinking(true);
+                    break;
+                case "reasoning-delta":
+                    setMessages((prev) =>
+                        prev.map((msg) =>
+                            msg.id === event.id
+                                ? {
+                                      ...msg,
+                                      metadata: {
+                                          reasoning:
+                                              (msg.metadata?.reasoning || "") +
+                                              event.text,
+                                      },
+                                  }
+                                : msg
+                        )
+                    );
+                    break;
+                case "reasoning-end":
+                    setIsThinking(false);
+                    break;
+                default:
+                    break;
+            }
+        };
 
-                    // === AI: начало текста ответа ===
-                    case "text-start":
-                        setMessages((prev) => {
-                            // Убедимся, что сообщение с таким id ещё не существует
-                            if (prev.some((msg) => msg.id === event.id))
-                                return prev;
-
-                            return [
-                                ...prev,
-                                {
-                                    id: event.id,
-                                    from: event.from,
-                                    text: "",
-                                    metadata: { reasoning: "" },
-                                },
-                            ];
-                        });
-                        break;
-
-                    // === AI: добавление куска текста ===
-                    case "text-delta":
-                        setMessages((prev) =>
-                            prev.map((msg) =>
-                                msg.id === event.id
-                                    ? { ...msg, text: msg.text + event.text } // или event.text
-                                    : msg
-                            )
-                        );
-                        break;
-
-                    // === AI: начало рассуждений ===
-                    case "reasoning-start":
-                        setIsThinking(true);
-                        break;
-
-                    // === AI: добавление куска рассуждений ===
-                    case "reasoning-delta":
-                        setMessages((prev) =>
-                            prev.map((msg) =>
-                                msg.id === event.id
-                                    ? {
-                                          ...msg,
-                                          metadata: {
-                                              reasoning:
-                                                  (msg.metadata?.reasoning ||
-                                                      "") + event.text,
-                                          },
-                                      }
-                                    : msg
-                            )
-                        );
-                        break;
-
-                    // === AI: конец рассуждений ===
-                    case "reasoning-end":
-                        setIsThinking(false);
-                        break;
-
-                    default:
-                        break;
-                }
-            });
+        try {
+            await chatService.generateStreamResponse(question, onData);
         } catch (error) {
             console.error("Stream error:", error);
         } finally {
@@ -109,33 +100,33 @@ function Form({ setMessages, setIsThinking }) {
         }
     };
 
-    const sendHandler = async (e) => {
-        e.preventDefault();
+    // const sendHandler = async (e) => {
+    //     e.preventDefault();
 
-        const tempID = Date.now();
-        const tempUserMessage = {
-            id: tempID,
-            text: question,
-            from: "user",
-        };
+    //     const tempID = Date.now();
+    //     const tempUserMessage = {
+    //         id: tempID,
+    //         text: question,
+    //         from: "user",
+    //     };
 
-        setMessages((prev) => [...prev, tempUserMessage]);
-        setQuestion("");
+    //     setMessages((prev) => [...prev, tempUserMessage]);
+    //     setQuestion("");
 
-        try {
-            setIsThinking(true);
-            const data = await chatService.generateResponse(question);
-            setMessages((prev) => {
-                const otherMessages = prev.filter((msg) => msg.id !== tempID);
-                return [...otherMessages, ...data];
-            });
-        } catch (error) {
-            setMessages((prev) => prev.filter((msg) => msg.id !== tempID));
-            alert("Не удалось отправить сообщение");
-        } finally {
-            setIsThinking(false);
-        }
-    };
+    //     try {
+    //         setIsThinking(true);
+    //         const data = await chatService.generateResponse(question);
+    //         setMessages((prev) => {
+    //             const otherMessages = prev.filter((msg) => msg.id !== tempID);
+    //             return [...otherMessages, ...data];
+    //         });
+    //     } catch (error) {
+    //         setMessages((prev) => prev.filter((msg) => msg.id !== tempID));
+    //         alert("Не удалось отправить сообщение");
+    //     } finally {
+    //         setIsThinking(false);
+    //     }
+    // };
 
     const attachHandler = (event) => {
         event.preventDefault();

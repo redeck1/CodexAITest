@@ -32,3 +32,24 @@ export const fetchAiResponse = async (prompt) => {
     const data = await response.json();
     return data.text;
 };
+
+export const fetchAiStreamResponse = async (prompt) => {
+    const response = await fetch(`${AI_URL}/stream`, {
+        method: "POST",
+        headers: {
+            "x-api-key": API_KEY,
+            "Content-Type": "application/json",
+            Accept: "application/x-ndjson",
+        },
+        body: JSON.stringify({
+            prompt: prompt,
+        }),
+    });
+
+    if (!response.ok) {
+        throw new Error(
+            `AI API error: ${response.status} ${response.statusText}`
+        );
+    }
+    return response;
+};

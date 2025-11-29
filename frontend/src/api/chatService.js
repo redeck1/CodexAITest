@@ -20,6 +20,44 @@ export const chatService = {
                 prompt: prompt,
             }),
         });
+        if (!response.ok) throw new Error(response.statusText);
+
         return await response.json();
+    },
+    async generateStreamResponse(prompt, onData) {
+        const response = await fetch(`${API_URL}/stream`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt }),
+        });
+
+        if (!response.ok) throw new Error(response.statusText);
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+
+        let buffer = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            buffer += decoder.decode(value, { stream: true });
+
+            const lines = buffer.split("\n");
+
+            buffer = lines.pop();
+
+            for (const line of lines) {
+                if (line.trim()) {
+                    try {
+                        const event = JSON.parse(line);
+                        onData(event);
+                    } catch (error) {
+                        console.error("Ошибка парсинга JSON:", error);
+                    }
+                }
+            }
+        }
     },
 };

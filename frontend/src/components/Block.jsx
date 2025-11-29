@@ -9,6 +9,13 @@ function Block({ message }) {
 
     return (
         <div className={`Block Block--${style}`}>
+            {style === "LLM" && (
+                <details className="Thoughts">
+                    <summary>Thoughts</summary>
+                    <span>{message.metadata.reasoning}</span>
+                </details>
+            )}
+
             <div className={`Message Message--${style}`}>
                 <span className={`Text Text--${style}`}>
                     {style === "LLM" ? (

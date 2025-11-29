@@ -328,3 +328,16 @@ code {
         background-position: 200% center;
     }
 }
+
+.Thoughts {
+    color: #777;
+    font-size: 14px;
+    font-weight: normal;
+    font-stretch: normal;
+    font-style: normal;
+    line-height: 1.57;
+    letter-spacing: normal;
+    text-align: left;
+    font-family: Arial, Helvetica, sans-serif;
+    width: 100%;
+}

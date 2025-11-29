@@ -7,12 +7,110 @@ import sendIcon3x from "../img/icon-send@3x.png";
 import attachIcon2x from "../img/icon-attach@2x.png";
 import attachIcon3x from "../img/icon-attach@3x.png";
 import { chatService } from "../api/chatService";
+import { messages } from "../../../backend/db/memoryDb";
 
 function Form({ setMessages, setIsThinking }) {
     const [question, setQuestion] = useState("");
 
-    const sendHandler = async (event) => {
-        event.preventDefault();
+    const streamSendHandler = async (e) => {
+        e.preventDefault();
+
+        const tempID = Date.now();
+        const tempUserMessage = {
+            id: tempID,
+            text: question,
+            from: "user",
+        };
+
+        setMessages((prev) => [...prev, tempUserMessage]);
+        setQuestion("");
+
+        try {
+            await chatService.generateStreamResponse(question, (event) => {
+                switch (event.type) {
+                    // === Пользователь ===
+                    case "message": // от пользователя
+                        setMessages((prev) => {
+                            const newUserMsg = {
+                                id: event.id,
+                                text: event.text, // или event.text — смотря что приходит
+                                from: event.from,
+                            };
+                            return [...prev, newUserMsg];
+                        });
+                        break;
+
+                    // === AI: начало текста ответа ===
+                    case "text-start":
+                        setMessages((prev) => {
+                            // Убедимся, что сообщение с таким id ещё не существует
+                            if (prev.some((msg) => msg.id === event.id))
+                                return prev;
+
+                            return [
+                                ...prev,
+                                {
+                                    id: event.id,
+                                    from: event.from,
+                                    text: "",
+                                    metadata: { reasoning: "" },
+                                },
+                            ];
+                        });
+                        break;
+
+                    // === AI: добавление куска текста ===
+                    case "text-delta":
+                        setMessages((prev) =>
+                            prev.map((msg) =>
+                                msg.id === event.id
+                                    ? { ...msg, text: msg.text + event.text } // или event.text
+                                    : msg
+                            )
+                        );
+                        break;
+
+                    // === AI: начало рассуждений ===
+                    case "reasoning-start":
+                        setIsThinking(true);
+                        break;
+
+                    // === AI: добавление куска рассуждений ===
+                    case "reasoning-delta":
+                        setMessages((prev) =>
+                            prev.map((msg) =>
+                                msg.id === event.id
+                                    ? {
+                                          ...msg,
+                                          metadata: {
+                                              reasoning:
+                                                  (msg.metadata?.reasoning ||
+                                                      "") + event.text,
+                                          },
+                                      }
+                                    : msg
+                            )
+                        );
+                        break;
+
+                    // === AI: конец рассуждений ===
+                    case "reasoning-end":
+                        setIsThinking(false);
+                        break;
+
+                    default:
+                        break;
+                }
+            });
+        } catch (error) {
+            console.error("Stream error:", error);
+        } finally {
+            setIsThinking(false);
+        }
+    };
+
+    const sendHandler = async (e) => {
+        e.preventDefault();
 
         const tempID = Date.now();
         const tempUserMessage = {
@@ -47,7 +145,7 @@ function Form({ setMessages, setIsThinking }) {
         if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
             if (question.trim()) {
-                sendHandler(e);
+                streamSendHandler(e);
             }
         }
     };
@@ -83,7 +181,7 @@ function Form({ setMessages, setIsThinking }) {
                     </button>
                     <button
                         className="button--send"
-                        onClick={(e) => sendHandler(e)}
+                        onClick={(e) => streamSendHandler(e)}
                         disabled={!question.trim()}
                     >
                         <img

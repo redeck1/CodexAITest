@@ -6,6 +6,8 @@
 
 [Запуск без докера](#Не-через-Docker)
 
+[Фичи](#Фичи)
+
 # Через Docker
 ## Требования 
 
@@ -17,6 +19,9 @@
 cd CodexAITest
 docker compose up --build
 ```
+фронтенд на http://localhost:5173 ,
+бэкенд на http://localhost:4444.
+
 
 # Не через Docker
 ## Требования
@@ -57,6 +62,8 @@ AI_URL=http://llm.codex.so
 cd frontend; npm run dev
 cd backend; npm run dev
 ```
-фронтенд на http://localhost:5173 ,
+фронтенд на http://localhost:5173 , 
 бэкенд на http://localhost:4444.
+
+#Фичи
 
